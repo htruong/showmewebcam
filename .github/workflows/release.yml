@@ -20,7 +20,6 @@ jobs:
   build:
     runs-on: ubuntu-20.04
     env:
-      BUILDROOT_VERSION: '2021.02.4'
       BUILDROOT_DIR: 'buildroot'
 
     strategy:
@@ -32,15 +31,15 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+          submodules: 'recursive'
 
       # Retrieve annotated tags as the checkout above doesn't do this
       # https://github.com/actions/checkout/issues/217#issuecomment-636481619
       - name: Fetch Git Tag History
         run: |
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-          echo "SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-          echo "GIT_TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
-          echo "Current version: $(git describe)"
+          echo "SMW_VERSION=$(buildroot/support/scripts/setlocalversion)" >> $GITHUB_ENV
+          echo "BUILDROOT_VERSION=$(git rev-parse --short HEAD:${BUILDROOT_DIR})" >> $GITHUB_ENV
 
       - name: Cache Build
         id: restore-cache
@@ -58,38 +57,31 @@ jobs:
       - name: Blocked mirror workaround
         run: echo "127.0.0.1 invisible-mirror.net" | sudo tee -a /etc/hosts
 
-      - name: Download Buildroot
-        if: steps.restore-cache.outputs.cache-hit != 'true'
-        run: |
-          wget -qc https://buildroot.org/downloads/buildroot-${{ env.BUILDROOT_VERSION }}.tar.gz
-          tar -zxf buildroot-${{ env.BUILDROOT_VERSION }}.tar.gz
-          mv buildroot-${{ env.BUILDROOT_VERSION }} ${{ env.BUILDROOT_DIR }}
-
       - name: Build Image
         run: |
           # Force a piwebcam rebuild every time
           rm -fr output/*/build/piwebcam*
           sh build-showmewebcam.sh ${{ matrix.raspberry }}
-          cp output/${{ matrix.raspberry }}/images/sdcard.img sdcard-${{ matrix.raspberry }}-${{ env.SHA }}.img
+          cp output/${{ matrix.raspberry }}/images/sdcard.img sdcard-${{ matrix.raspberry }}-${{ env.SMW_VERSION }}.img
 
       - name: Upload Image
         uses: actions/upload-artifact@v2
         with:
-          name: sdcard-${{ matrix.raspberry }}-${{ env.SHA }}.img
-          path: sdcard-${{ matrix.raspberry }}-${{ env.SHA }}.img
+          name: sdcard-${{ matrix.raspberry }}-${{ env.SMW_VERSION }}.img
+          path: sdcard-${{ matrix.raspberry }}-${{ env.SMW_VERSION }}.img
 
       - name: Prepare Release Image
         if: startsWith(github.ref, 'refs/tags/v')
         run: |
-          cp output/${{ matrix.raspberry }}/images/sdcard.img sdcard-${{ matrix.raspberry }}-${{ env.GIT_TAG_NAME }}.img
-          gzip sdcard-${{ matrix.raspberry }}-${{ env.GIT_TAG_NAME }}.img
+          cp output/${{ matrix.raspberry }}/images/sdcard.img sdcard-${{ matrix.raspberry }}-${{ env.SMW_VERSION }}.img
+          gzip sdcard-${{ matrix.raspberry }}-${{ env.SMW_VERSION }}.img
 
       - name: Store Release Image
         if: startsWith(github.ref, 'refs/tags/v')
         uses: actions/upload-artifact@v2
         with:
           name: release
-          path: sdcard-${{ matrix.raspberry }}-${{ env.GIT_TAG_NAME }}.img.gz
+          path: sdcard-${{ matrix.raspberry }}-${{ env.SMW_VERSION }}.img.gz
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')
@@ -129,8 +121,7 @@ jobs:
           name: release
 
       - name: Create checksums file
-        run: |
-          sha256sum "sdcard*" > CHECKSUMS.sha256
+        run: sha256sum sdcard* > CHECKSUMS.sha256
 
       - name: Upload Binaries to Release
         uses: alexellis/upload-assets@0.2.2

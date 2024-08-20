@@ -31,7 +31,7 @@ Show-me webcam is proudly powered by [peterbay's uvc-gadget](https://github.com/
 | ------------------------------ | ------- | ------- | ----------------- |
 | Pi Zero v1.3 (without Wifi)    | &check; | &check; | &check;           |
 | Pi Zero W (with Wifi)          | &check; | &check; | &check;           |
-| Pi 4+                          |         | &check; | &check;           |
+| Pi 4+                          | &check; | &check; | &check;           |
 
 ## Instructions
 
@@ -167,9 +167,15 @@ You can add the parameters to `cmdline.txt` on the boot volume as follows:
 usb_f_uvc.camera_terminal_controls=0,0,0 usb_f_uvc.processing_unit_controls=0,0
 ```
 
-The previous example sets all controls to disabled, and should thus be safe.
+The above example disables all controls and should thus be safe.
 The parameters directly correspond to the `bmControls` bitfields in the descriptor.
 Please, again, read the documentation linked above.
+
+An example for enabling all the available controls for the 8 Mpixel (v2) camera for the Raspberry Pi 4B is given below:
+
+```
+usb_f_uvc.camera_terminal_controls=10,0,0 usb_f_uvc.processing_unit_controls=219,4
+```
 
 ### Configure available camera resolutions and streaming format
 
@@ -199,15 +205,16 @@ Please note that you have to reboot your piwebcam (power cycle it) for changes t
 
 Clone or download this repository. Then inside it:
 
-- Download the latest Buildroot stable from https://buildroot.org/download.html
-- Extract it and rename it to `buildroot`
+- Clone the repository with submodules:
+  - `git clone --recurse-submodules https://github.com/showmewebcam/showmewebcam.git`
 - Run build command:
   - `./build-showmewebcam.sh raspberrypi0w` to build Raspberry Pi Zero W (with Wifi) image.
   - `./build-showmewebcam.sh raspberrypi0` to build Raspberry Pi Zero (without Wifi) image.
   - `./build-showmewebcam.sh raspberrypi4` to build Raspberry Pi 4 image.
-  - **IMPORTANT**: If you didn't rename your Buildroot directory to `buildroot` or if you put it somewhere else you need to set the Buildroot path manually, e.g. `BUILDROOT_DIR=../buildroot ./build-showmewebcam.sh raspberrypi0`
 - The resulting image `sdcard.img` will be in the `output/$BOARDNAME/images` folder
 - If you add a `camera.txt` file to the root of this repository, the contents will be automatically added to `/boot/camera.txt`
+
+**Note:** If you want to use external Buildroot directory you need to set the Buildroot path manually, e.g. `BUILDROOT_DIR=../buildroot ./build-showmewebcam.sh raspberrypi0`
 
 ## Credits
 
