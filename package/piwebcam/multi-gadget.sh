@@ -77,7 +77,7 @@ config_usb_webcam () {
     FORMATS_FILE=$VIDEO_FORMATS_FILE
   fi
 
-  grep -E "^(mjpeg|uncompressed)[[:space:]]+[[:digit:]]+[[:space:]]+[[:digit:]]+" $FORMATS_FILE | while read -r line
+  grep -E "^(mjpeg|uncompressed|h264)[[:space:]]+[[:digit:]]+[[:space:]]+[[:digit:]]+" $FORMATS_FILE | while read -r line
   do
     VIDEO_FORMAT=$(echo "$line" | awk '{print $1}')
     HDR_DESC=$(echo "$VIDEO_FORMAT" | cut -c 1)

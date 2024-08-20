@@ -1,6 +1,6 @@
 # Default Show-me webcam supported resolutions
 #
-# format: video format(mjpeg|uncompressed) x-dimension y-dimension
+# format: video format(mjpeg|uncompressed|h264) x-dimension y-dimension
 #
 mjpeg 640 360
 mjpeg 640 480
@@ -13,3 +13,4 @@ mjpeg 1536 864
 mjpeg 1600 900
 mjpeg 1600 1200
 mjpeg 1920 1080
+h264 1920 1080

@@ -4,8 +4,8 @@
 #
 ################################################################################
 
-PIWEBCAM_VERSION = e9a733fe5c4a7fcb48e963e8d994bc33d24d814e
-PIWEBCAM_SITE = https://github.com/peterbay/uvc-gadget.git
+PIWEBCAM_VERSION = 8d4dfa7fdcfd6cb1f18ace9e79b12fb3f6b6e3b9
+PIWEBCAM_SITE = https://github.com/htruong/uvc-gadget.git
 PIWEBCAM_LICENSE = GPL-2.0+
 PIWEBCAM_LICENSE_FILES = LICENSE
 PIWEBCAM_DEST_DIR = /opt/uvc-webcam
